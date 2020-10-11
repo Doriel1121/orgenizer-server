@@ -7,10 +7,10 @@ const port = 5000;
 
 
 var con = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'dorielaboya12',
-    database: 'orgenizer'
+    host: 'orgenizer.csjzksainsxv.us-east-2.rds.amazonaws.com',
+    user: 'admin',
+    password: 'xxx',
+    database: 'orgenizer',
 })
 
 con.connect(function (err) {
@@ -24,7 +24,6 @@ GetAllCustomers = (res) => {
         if (err) throw err;
         console.log(result);
         res.send(result)
-        // callback(result);
     })
 }
 
@@ -34,7 +33,6 @@ GetAllMechnics = (res) => {
         if (err) throw err;
         console.log(result);
         res.send(result)
-        // callback(result);
     })
 }
 
@@ -44,7 +42,6 @@ GetAllMRoutes = (res) => {
         if (err) throw err;
         console.log(result);
         res.send(result)
-        // callback(result);
     })
 }
 var date = new Date
@@ -60,32 +57,31 @@ console.log(currentDate);
 GetMechanicRoute = (idmechanic, res) => {
     let allCustomer = null
     console.log(idmechanic);
-    // const currentDate = year + "/" + month + "/" + day
     var sql = `SELECT * FROM orgenizer.route WHERE idmechanic = ${idmechanic} AND date != ${currentDate}`
     con.query(sql, function (err, result) {
         if (err) throw err;
         console.log(result);
         console.log("success");
-        // var routeQuery = `SELECT * FROM orgenizer.routclientmigration WHERE idroute = ${result[0].idroute}`
-        // con.query(routeQuery, function (err, resu) {
-        //     if (err) throw err;
-        //     console.log("resu is OK");
-        //     for (let i = 0; i < resu.length; i++) {
-        //         const element = resu[i];
-        //         var customerQuery = `SELECT * FROM orgenizer.customers WHERE idcustomers  = ${element.idcustomer}`
-        //         con.query(customerQuery, function (err, response) {
-        //             if (err) throw err;
-        //             if (allCustomer !== null) {
-        //                 allCustomer = [allCustomer, response]
-        //             } else {
-        //                 allCustomer = response
-        //             }
-        //         })
-        //     }
-        console.log(allCustomer);
-        res.send(result)
+        var routeQuery = `SELECT * FROM orgenizer.routclientmigration WHERE idroute = ${result[0].idroute}`
+        con.query(routeQuery, function (err, resu) {
+            if (err) throw err;
+            console.log("resu is OK");
+            for (let i = 0; i < resu.length; i++) {
+                const element = resu[i];
+                var customerQuery = `SELECT * FROM orgenizer.customers WHERE idcustomers  = ${element.idcustomer}`
+                con.query(customerQuery, function (err, response) {
+                    if (err) throw err;
+                    if (allCustomer !== null) {
+                        allCustomer = [allCustomer, response]
+                    } else {
+                        allCustomer = response
+                    }
+                })
+            }
+            console.log(allCustomer);
+            res.send(result)
+        })
     })
-    // })
 }
 
 PostNewRoute = (newRoute, res) => {
