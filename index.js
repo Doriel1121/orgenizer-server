@@ -9,7 +9,7 @@ const port = 5000;
 var con = mysql.createConnection({
     host: 'orgenizer.csjzksainsxv.us-east-2.rds.amazonaws.com',
     user: 'admin',
-    password: 'timnacohen1',
+    password: 'xxx',
     database: 'organizer'
 })
 
