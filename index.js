@@ -9,8 +9,8 @@ const port = 5000;
 var con = mysql.createConnection({
     host: 'orgenizer.csjzksainsxv.us-east-2.rds.amazonaws.com',
     user: 'admin',
-    password: 'xxx',
-    database: 'orgenizer',
+    password: 'timnacohen1',
+    database: 'organizer'
 })
 
 con.connect(function (err) {
@@ -37,7 +37,7 @@ GetAllMechnics = (res) => {
 }
 
 GetAllMRoutes = (res) => {
-    var sql = "SELECT * FROM orgenizer.route;";
+    var sql = "SELECT * FROM organizer.route;";
     con.query(sql, function (err, result, fields) {
         if (err) throw err;
         console.log(result);
@@ -51,35 +51,28 @@ let day = date.getDate()
 if (day < 10) {
     day = ("0" + day)
 }
-const currentDate = year + "/" + month + "/" + day
+const currentDate = year + "-" + month + "-" + day
 console.log(currentDate);
 // the date condition is missing in the query 
 GetMechanicRoute = (idmechanic, res) => {
     let allCustomer = null
     console.log(idmechanic);
-    var sql = `SELECT * FROM orgenizer.route WHERE idmechanic = ${idmechanic} AND date != ${currentDate}`
+    var sql = `SELECT * FROM organizer.route WHERE idmechanic = ${idmechanic} `
     con.query(sql, function (err, result) {
         if (err) throw err;
         console.log(result);
         console.log("success");
-        var routeQuery = `SELECT * FROM orgenizer.routclientmigration WHERE idroute = ${result[0].idroute}`
+        var routeQuery = `SELECT routclientmigration.idroute , routclientmigration.idcustomer , 
+        customers.idcustomer , customers.Name , customers.Phonenumber , customers.Address, 
+        customers.Scent , customers.System , customers.Ladder , customers.MechanicComment , 
+        customers.ManagerComment
+        FROM routclientmigration ,customers
+        WHERE routclientmigration.idcustomer = customers.idcustomer AND 
+        routclientmigration.idroute = ${result[0].idroute}`
         con.query(routeQuery, function (err, resu) {
             if (err) throw err;
             console.log("resu is OK");
-            for (let i = 0; i < resu.length; i++) {
-                const element = resu[i];
-                var customerQuery = `SELECT * FROM orgenizer.customers WHERE idcustomers  = ${element.idcustomer}`
-                con.query(customerQuery, function (err, response) {
-                    if (err) throw err;
-                    if (allCustomer !== null) {
-                        allCustomer = [allCustomer, response]
-                    } else {
-                        allCustomer = response
-                    }
-                })
-            }
-            console.log(allCustomer);
-            res.send(result)
+            res.send(resu)
         })
     })
 }
@@ -87,7 +80,7 @@ GetMechanicRoute = (idmechanic, res) => {
 PostNewRoute = (newRoute, res) => {
     for (let i = 0; i < newRoute.length; i++) {
         let element = newRoute[i];
-        let sql = `INSERT INTO orgenizer.routclientmigration (idroute, idcustomer) VALUES (${element.routeID} , ${element.customerID})`
+        let sql = `INSERT INTO organizer.routclientmigration (idroute, idcustomer) VALUES (${element.routeID} , ${element.customerID})`
         con.query(sql, function (err, response) {
             if (err) throw err;
             console.log(response);
@@ -96,7 +89,7 @@ PostNewRoute = (newRoute, res) => {
 }
 
 PostUpdateCustomer = (updatedCustomer, res) => {
-    let sql = `UPDATE orgenizer.customers SET Name = ${updatedCustomer.Name}, Address = ${updatedCustomer.Address}, Phonenumber = ${updatedCustomer.Phonenumber}, Scent = ${updatedCustomer.Scent}, System = ${updatedCustomer.System}, Ladder = ${updatedCustomer.Ladder}, MechanicComment = ${updatedCustomer.MechanicComment}, ManagerComment = ${updatedCustomer.ManagerComment}  WHERE idcustomers = ${updatedCustomer.CustomerId}`
+    let sql = `UPDATE organizer.customers SET Name = ${updatedCustomer.Name}, Address = ${updatedCustomer.Address}, Phonenumber = ${updatedCustomer.Phonenumber}, Scent = ${updatedCustomer.Scent}, System = ${updatedCustomer.System}, Ladder = ${updatedCustomer.Ladder}, MechanicComment = ${updatedCustomer.MechanicComment}, ManagerComment = ${updatedCustomer.ManagerComment}  WHERE idcustomer = ${updatedCustomer.CustomerId}`
     con.query(sql, function (err, res) {
         if (err) throw err;
         res.send(res)
